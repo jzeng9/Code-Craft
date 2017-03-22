@@ -163,9 +163,7 @@ struct MCMF{
 	}
 
 	/*-1 for no solution*/
-	int get_cost( const vector<int> &start,bool *is_start,
-		const vector<int> &end, const vector<int> &end_from,const vector<int> &need,
-		const vector<int> &path_start, const vector<int> &path_end, const vector<int> &path_flow, const vector<int> &path_cost,
+	int get_cost( const vector<int> &start,
 		int number_of_node,int tot_need
 		)
 	{
@@ -183,7 +181,7 @@ struct MCMF{
 		int cost;
 		int flow = MincostMaxflow(start[0],number_of_node+1,cost);
 		
-		DeleteEdge(start.size());
+		DeleteEdge(start.size()-1);
 		
 		if(flow < tot_need) return -1;
 		return cost;		
