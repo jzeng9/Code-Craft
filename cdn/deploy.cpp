@@ -1,5 +1,9 @@
 #include "deploy.h"
-#include <stdio.h>
+/*#include <stdio.h>*/
+
+#include <bits/stdc++.h>
+using namespace std;
+
 
 struct Edge{
 	int from,to,cap,flow,cost;
@@ -10,6 +14,7 @@ struct Edge{
 struct MCMF{
 	static const INF = 100010;
 	static const FLOW_INF = 5010;
+	static const int maxn = 1002;
 
 	int n,m;
 	vector<Edge> edges;
@@ -19,19 +24,16 @@ struct MCMF{
 	int p[maxn]; /*last edge?*/
 	int a[maxn];
 
-	vector<int> end;
-	vector<int> end_from;
-	vector<int> need;
+	
+
+	/*链路信息*/
+
 
 	void init(int n){
 		this->n = n;
 		for(int i=0;i<n;i++) G[i].clear();
 
 		edges.clear();
-
-		end.clear();
-		need.clear();
-		end_from.clear();
 	}
 
 	void AddEdge(int from,int to,int cap,int cost){
@@ -44,7 +46,7 @@ struct MCMF{
 		
 	}
 
-	/*
+	
 	void DeleteEdge(int times)
 	{
 		while(times>0)
@@ -60,9 +62,9 @@ struct MCMF{
 			m=edges.size();
 		}
 	}
-	*/
+	
 
-	bool BellmanFord(int s,int t,int &flow,long long &cost){
+	bool BellmanFord(int s,int t,int &flow,int &cost){
 		for(int i=0;i<n;i++) d[i] = INF;
 			memset(inq,0,sizeof(inq));
 		d[s]=0;inq[s]=1;p[s]=0;a[s]=INF;
@@ -92,7 +94,7 @@ struct MCMF{
 
 		if( d[t] == INF) return false;
 		flow += a[t];
-		cost += (long long) d[t] * (long long)a[t];
+		cost +=  d[t] * a[t];
 		for(int u=t;u!=s; u=edges [ p[u] ].from ){
 			edges[ p[u] ].flow += a[t];
 			edges[ p[u]^1 ].flow -= a[t];
@@ -101,7 +103,7 @@ struct MCMF{
 
 	}
 
-	int MincostMaxflow(int s,int t,long long &cost){
+	int MincostMaxflow(int s,int t,int &cost){
 		int flow = 0;
 		cost = 0;
 
@@ -110,21 +112,82 @@ struct MCMF{
 
 	}
 
-	void build_graph()
+	/*消费者信息*/
+
+	/*
+	vector<int> end;
+	vector<int> end_from;
+	vector<int> need;
+	*/
+
+	/*链路信息*/
+	/*
+	vector<int> path_start;
+	vector<int> path_end;
+	vector<int> path_flow;
+	vector<int> path_cost;
+	*/
+
+	void build_graph(
+		const vector<int> &end, const vector<int> &end_from,const vector<int> &need,
+		const vector<int> &path_start, const vector<int> &path_end, const vector<int> &path_flow, const vector<int> &path_cost,
+		int number_of_node
+		)
 	{
-		for(int i=0;i<end_info;i++)
+		init(number_of_node+1);
+
+		for(int i=0;i<end.size();i++)
 		{
-			AddEdge(end[i], n-1 , need[i], 0 );
+			AddEdge(end[i], number_of_node , need[i], 0 );
+		}
+		for(int i=0;i<end.size();i++)
+		{
+			AddEdge(end_from[i],end[i],need[i],0);
+		}
+
+		for(int i=0;i<path_start.size();i++)
+		{
+			AddEdge(path_start[i],path_end[i],path_flow[i],path_cost[i]);
+			AddEdge(path_end[i],path_start[i],path_flow[i],path_cost[i]);
+		}
+
+
+	}
+
+	void make_start(const vector<int> &start)
+	{
+		for(int i=1;i<start.size();i++)
+		{
+			AddEdge(start[0],start[i],INF,0);
 		}
 	}
 
-	/*need inplement*/
-
-	void get_ans( const std::vector<int> &start)
+	/*-1 for no solution*/
+	int get_cost( const vector<int> &start,bool *is_start,
+		const vector<int> &end, const vector<int> &end_from,const vector<int> &need,
+		const vector<int> &path_start, const vector<int> &path_end, const vector<int> &path_flow, const vector<int> &path_cost,
+		int number_of_node,int tot_need
+		)
 	{
-		init(number_of_node+1);//we assume that n+1 is the real end
-		int assume_end = number_of_node;
-		build_graph();
+		//init(number_of_node+1);//we assume that n+1 is the real end
+		//int assume_end = number_of_node;
+		//build_graph();
+
+		if(start.size()==0)
+		{
+			cout << "empty start" << endl;
+			return -1;
+		}
+
+		make_start();
+		int cost;
+		int flow = MincostMaxflow(start[0],number_of_node+1,cost);
+		
+		DeleteEdge(start.size());
+		
+		if(flow < tot_need) return -1;
+		return cost;		
+
 	}
 
 }worker;
