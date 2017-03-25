@@ -201,3 +201,73 @@ void deploy_server(char * topo[MAX_EDGE_NUM], int line_num,char * filename)
 	write_result(topo_file, filename);
 
 }
+
+void change(vector<int> &start,bool center[])
+{
+	srand(time(NULL)) ;
+	int tmp = rand()%3 ;
+	if(tmp == 0)
+	{
+		int pos = rand()%n ;
+		while(center[pos]) pos = rand()%n ;
+		center[pos] = 1 ;
+		start.append(pos) ;
+	}
+	else if(tmp == 1)
+	{
+		int pos = rand()%(start.size()) ;
+		int ele = start[pos] ;
+		start.erase(pos) ;
+		center[ele] = 0 ;
+	}
+	else
+	{
+		int pos2 = rand()%(start.size()) ;
+		int ele = start[pos2] ;
+		start.erase(pos2) ;
+		center[ele] = 0 ;
+		
+		int pos1 = rand()%n ;
+		while(center[pos1]) pos1 = rand()%n ;
+		center[pos1] = 1 ;
+		start.append(pos1) ;
+	}
+	
+}	
+`
+int SA()
+{
+	bool center[n+1] = {0} ;
+	vector<int> start ;
+	for(int i = 0 ; i < n+1 ; i++)
+	{
+		srand(time(NULL)) ;
+		center[i] = rand()%2 ;
+		if(center[i])
+		{
+			start.append(i) ;
+		}
+	}
+	int cost = get_cost(start,,) ;
+	T = 500 , step = 0.1 ;
+	while(T)
+	{
+		bool new_center[n+1] = {0} ;
+		vector<int> new_start(start) ;
+		
+		chenge(new_start,new_center) ;
+		int new_cost = get_cost(start,,) ;
+		if(new_cost < cost)
+		{
+			//cost = new_cost ;
+			//center = new_center ;
+		}
+		else
+		{
+			double prob = exp(abs(new_cost-cost)/T) ;
+			if()
+			else
+		}
+		T = T - step ;
+	}
+}
