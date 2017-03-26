@@ -164,7 +164,7 @@ struct MCMF{
 
 	/*-1 for no solution*/
 	int get_cost( const vector<int> &start,
-		int number_of_node,int tot_need
+		//int number_of_node,int tot_need
 		)
 	{
 		//init(number_of_node+1);//we assume that n+1 is the real end
@@ -181,10 +181,8 @@ struct MCMF{
 		int cost;
 		int flow = MincostMaxflow(start[0],number_of_node+1,cost);
 		
-		//DeleteEdge(start.size()-1);
-		//先不急
-		//打印路径的时候就会用到这些start
-		//如果需要更新解的时候再去删		
+		DeleteEdge(start.size()-1);
+		
 		if(flow < tot_need) return -1;
 		return cost;		
 
@@ -196,56 +194,10 @@ struct MCMF{
 void deploy_server(char * topo[MAX_EDGE_NUM], int line_num,char * filename)
 {
 
-	int number_of_node,int path_num,int cost_num;
-	int read_num = 0;
+	// 需要输出的内容
+	char * topo_file = (char *)"17\n\n0 8 0 20\n21 8 0 20\n9 11 1 13\n21 22 2 20\n23 22 2 8\n1 3 3 11\n24 3 3 17\n27 3 3 26\n24 3 3 10\n18 17 4 11\n1 19 5 26\n1 16 6 15\n15 13 7 13\n4 5 8 18\n2 25 9 15\n0 7 10 10\n23 24 11 23";
 
-	int server_cost;
-	
-	sscanf( topo[read_num] ,"%d%d%d", &number_of_node,&path_num, &cost_num );
-	read_num++;
-
-	sscanf(topo[read_num], "%d", &server_cost );
-
-	read_num++;
-
-	vector<int> path_start, path_end, path_flow, path_cost;
-
-	for(int i=0;i<path_num;i++)
-	{
-		int s,t,f,c;
-		sscanf(topo[read_num],"%d%d%d%d",&s,&t,&f,&c);
-		read_num++;
-		path_start.push_back(s);
-		path_end.push_back(t);
-		path_flow.push_back(f);
-		path_cost.push_back(c);
-	}
-
-	int tot_need = 0;
-	vector<int> end,end_from,need;
-
-	for(int i=0;i<cost_num;i++)
-	{
-		int s,t,c;
-		sscanf(topo[read_num],"%d%d%d",&s,&t,&c);
-		read_num++;
-
-		end.push_back(s);
-		end_from.push_back(t);
-		cost_num.push_back(c);
-
-		tot_need += c;
-	}
-
-	worker.build_graph(end, end_from,need,
-		path_start, path_end, path_flow, path_cost,
-		number_of_node);
-	
-	/*
-	finish the SA here.
-	
-	
-	*/
+	// 直接调用输出文件的方法输出到指定文件中(ps请注意格式的正确性，如果有解，第一行只有一个数据；第二行为空；第三行开始才是具体的数据，数据之间用一个空格分隔开)
 	write_result(topo_file, filename);
 
 }
@@ -283,7 +235,7 @@ void change(vector<int> &start,bool center[])
 	
 }	
 `
-int SA()
+void SA()
 {
 	bool center[n+1] = {0} ;
 	vector<int> start ;
@@ -296,25 +248,40 @@ int SA()
 			start.append(i) ;
 		}
 	}
-	int cost = get_cost(start,,) ;
+	double cost = get_cost(start) ;
 	T = 500 , step = 0.1 ;
 	while(T)
 	{
 		bool new_center[n+1] = {0} ;
+		for(int i = 0 ; i < n+1 ; i++)
+		{
+			new_center[i] = center[i] ;
+		}
 		vector<int> new_start(start) ;
 		
-		chenge(new_start,new_center) ;
-		int new_cost = get_cost(start,,) ;
+		change(new_start,new_center) ;
+		int new_cost = get_cost(start) ;
 		if(new_cost < cost)
 		{
-			//cost = new_cost ;
-			//center = new_center ;
+			cost = new_cost ;
+			for(int i = 0 ; i < n+1 ; i++)
+			{
+				center[i] = new_center[i] ;
+			}
+			start = new_start ;
 		}
 		else
 		{
 			double prob = exp(abs(new_cost-cost)/T) ;
-			if()
-			else
+			if(1.0*rand()/RAND_MAX <= prob)
+			{
+				cost = new_cost ;
+				for(int i = 0 ; i < n+1 ; i++)
+				{
+					center[i] = new_center[i] ;
+				}
+				start = new_start ;
+			}
 		}
 		T = T - step ;
 	}
