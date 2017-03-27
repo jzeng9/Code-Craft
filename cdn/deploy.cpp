@@ -245,10 +245,10 @@ void change(vector<int> &start,bool center[])
 	int tmp = rand()%3 ;
 	if(tmp == 0)
 	{
-		int pos = rand()%n ;
-		while(center[pos]) pos = rand()%n ;
+		int pos = rand()%worker.n ;
+		while(center[pos]) pos = rand()%worker.n ;
 		center[pos] = 1 ;
-		start.append(pos) ;
+		start.push_back(pos) ;
 	}
 	else if(tmp == 1)
 	{
@@ -264,19 +264,18 @@ void change(vector<int> &start,bool center[])
 		start.erase(pos2) ;
 		center[ele] = 0 ;
 		
-		int pos1 = rand()%n ;
-		while(center[pos1]) pos1 = rand()%n ;
+		int pos1 = rand()%worker.n ;
+		while(center[pos1]) pos1 = rand()%worker.n ;
 		center[pos1] = 1 ;
-		start.append(pos1) ;
+		start.push_back(pos1) ;
 	}
 	
-}	
-`
+}
 void SA()
 {
-	bool center[n+1] = {0} ;
+	bool center[worker.n+1] = {0} ;
 	vector<int> start ;
-	for(int i = 0 ; i < n+1 ; i++)
+	for(int i = 0 ; i < worker.n+1 ; i++)
 	{
 		srand(time(NULL)) ;
 		center[i] = rand()%2 ;
@@ -289,8 +288,8 @@ void SA()
 	int T = 500 , step = 0.1 ;
 	while(T)
 	{
-		bool new_center[n+1] = {0} ;
-		for(int i = 0 ; i < n+1 ; i++)
+		bool new_center[worker.n+1] = {0} ;
+		for(int i = 0 ; i < worker.n+1 ; i++)
 		{
 			new_center[i] = center[i] ;
 		}
@@ -301,7 +300,7 @@ void SA()
 		if(new_cost < cost)
 		{
 			cost = new_cost ;
-			for(int i = 0 ; i < n+1 ; i++)
+			for(int i = 0 ; i < worker.n+1 ; i++)
 			{
 				center[i] = new_center[i] ;
 			}
@@ -313,7 +312,7 @@ void SA()
 			if(1.0*rand()/RAND_MAX <= prob)
 			{
 				cost = new_cost ;
-				for(int i = 0 ; i < n+1 ; i++)
+				for(int i = 0 ; i < worker.n+1 ; i++)
 				{
 					center[i] = new_center[i] ;
 				}
