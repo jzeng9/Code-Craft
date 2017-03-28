@@ -8,8 +8,8 @@ struct Edge{
 };
 
 struct MCMF{
-	static const INF = 100010;
-	static const FLOW_INF = 5010;
+	static const int INF = 100010;
+	static const int FLOW_INF = 5010;
 	static const int maxn = 1002;
 
 	int n,m;
@@ -177,10 +177,8 @@ struct MCMF{
 		int cost;
 		int flow = MincostMaxflow(start[0],number_of_node+1,cost);
 		
-		//DeleteEdge(start.size()-1);
-		//先不急
-		//打印路径的时候就会用到这些start
-		//如果需要更新解的时候再去删		
+		DeleteEdge(start.size()-1);
+			
 		if(flow < tot_need) return -1;
 		return cost;		
 
