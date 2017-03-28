@@ -23,6 +23,14 @@ struct MCMF{
 
 	char *filename;
 
+	/* for simple solution*/
+
+	vector<int> _end;
+	vector<int> _end_from;
+	vector<int> _need;
+
+	vector< vector<int> > path_info;
+	vector<int> tmp;
 	
 
 	/*链路信息*/
@@ -63,7 +71,7 @@ struct MCMF{
 	}
 	
 
-	bool BellmanFord(int s,int t,int &flow,int &cost){
+	bool BellmanFord(int s,int t,int &flow,int &cost,bool flag = false){
 		for(int i=0;i<n;i++) d[i] = INF;
 			memset(inq,0,sizeof(inq));
 		d[s]=0;inq[s]=1;p[s]=0;a[s]=INF;
@@ -92,16 +100,36 @@ struct MCMF{
 		}
 
 		if( d[t] == INF) return false;
+
+		if(flag)
+		{
+			tmp.clear();
+		}
+
 		flow += a[t];
 		cost +=  d[t] * a[t];
 		for(int u=t;u!=s; u=edges [ p[u] ].from ){
 			edges[ p[u] ].flow += a[t];
 			edges[ p[u]^1 ].flow -= a[t];
+
+			if(flag)
+			{
+				tmp.push_back(u);
+			}
 		}
+
+		if(flag)
+		{
+			reverse(tmp.begin(),tmp.end());
+			tmp.push_back( a[t] );
+
+			path_info.push_back(tmp);
+		}
+
 		return true;
 
 	}
-	
+
 	void reset_flow()
 	{
 		for(int i=0;i<m;i++)
@@ -109,7 +137,7 @@ struct MCMF{
 			edges[i].flow = 0;
 		}
 	}
-	
+
 	int MincostMaxflow(int s,int t,int &cost){
 		int flow = 0;
 		cost = 0;
@@ -172,6 +200,7 @@ struct MCMF{
 	/*-1 for no solution*/
 	int get_cost( const vector<int> &start,
 		//int number_of_node,int tot_need
+		bool flag = false
 		)
 	{
 		//init(number_of_node+1);//we assume that n+1 is the real end
@@ -184,11 +213,16 @@ struct MCMF{
 			return -1;
 		}
 
+		if(flag)
+		{
+			path_info.clear();
+		}
+
 		make_start();
 		int cost;
-		int flow = MincostMaxflow(start[0],n,cost);//n is the end node
+		int flow = MincostMaxflow(start[0],n,cost,flag);//n is the end node
 		
-		if(flag)
+		if(!flag)
 		{
 			DeleteEdge(start.size()-1);
 			reset_flow();
@@ -198,41 +232,37 @@ struct MCMF{
 		return cost;		
 
 	}
+
+
+
 	
-	void single_path(vector<int> &res,int cur,int minf)
+
+	void print_path(const vector<int> &start)
 	{
-		if(cur==n)
+		int cost = get_cost(start,true);
+		if(cost==-1)
 		{
-			
-			return;
+			for(int i=0;)
 		}
 
-		res.push_back(cur);
-
-		for(int i=0;i<G[cur].size();i++)
+		else
 		{
-			Edge &e = edges[ G[u][i] ];
-			if( e.flow > 0 )
+			//print : path_info.size();
+			for(int i=0;i<path_info.size();i++)
 			{
-
+				for(int j=0;j<path_info[i].size();j++)
+				{
+					//print: path_info[i][j] with space
+					//remeber to erase some 'inf' edge and super end
+					//I stop here because I need to find a way to put into a char array
+					//maybe ostringstream can work
+				}
 			}
 		}
 	}
 
-	void print_path(const vector<int> &start)
-	{
-		int cost = get_cost(start,false);
-		if(cost==-1)
-		{
-
-		}
-		else
-		{
-
-		}
-	}
-
 }worker;
+
 
 //你要完成的功能总入口
 void deploy_server(char * topo[MAX_EDGE_NUM], int line_num,char * filename)
