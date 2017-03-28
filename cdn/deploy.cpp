@@ -101,7 +101,15 @@ struct MCMF{
 		return true;
 
 	}
-
+	
+	void reset_flow()
+	{
+		for(int i=0;i<m;i++)
+		{
+			edges[i].flow = 0;
+		}
+	}
+	
 	int MincostMaxflow(int s,int t,int &cost){
 		int flow = 0;
 		cost = 0;
@@ -180,11 +188,48 @@ struct MCMF{
 		int cost;
 		int flow = MincostMaxflow(start[0],n,cost);//n is the end node
 		
-		DeleteEdge(start.size()-1);
+		if(flag)
+		{
+			DeleteEdge(start.size()-1);
+			reset_flow();
+		}
 		
 		if(flow < require) return -1;
 		return cost;		
 
+	}
+	
+	void single_path(vector<int> &res,int cur,int minf)
+	{
+		if(cur==n)
+		{
+			
+			return;
+		}
+
+		res.push_back(cur);
+
+		for(int i=0;i<G[cur].size();i++)
+		{
+			Edge &e = edges[ G[u][i] ];
+			if( e.flow > 0 )
+			{
+
+			}
+		}
+	}
+
+	void print_path(const vector<int> &start)
+	{
+		int cost = get_cost(start,false);
+		if(cost==-1)
+		{
+
+		}
+		else
+		{
+
+		}
 	}
 
 }worker;
