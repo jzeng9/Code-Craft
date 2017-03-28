@@ -21,7 +21,7 @@ struct MCMF{
 	int a[maxn];
 	int require;
 
-	char *filename;
+	string filename;
 
 	/* for simple solution*/
 
@@ -31,6 +31,9 @@ struct MCMF{
 
 	vector< vector<int> > path_info;
 	vector<int> tmp;
+
+	int server_cost;
+
 	
 
 	/*链路信息*/
@@ -114,6 +117,7 @@ struct MCMF{
 
 			if(flag)
 			{
+				if(u!=t)
 				tmp.push_back(u);
 			}
 		}
@@ -169,6 +173,10 @@ struct MCMF{
 		int number_of_node,int tot_need
 		)
 	{
+		_end = end;
+		_end_from = end_from;
+		_need = need;
+
 		init(number_of_node+1);
 
 		for(int i=0;i<end.size();i++)
@@ -213,7 +221,7 @@ struct MCMF{
 			return -1;
 		}
 
-		if(flag)
+		if(!flag)
 		{
 			path_info.clear();
 		}
@@ -229,7 +237,7 @@ struct MCMF{
 		}
 		
 		if(flow < require) return -1;
-		return cost;		
+		return cost + server_cost * start.size() ;		
 
 	}
 
@@ -239,25 +247,48 @@ struct MCMF{
 
 	void print_path(const vector<int> &start)
 	{
+		ostringstream os;
+
 		int cost = get_cost(start,true);
 		if(cost==-1)
 		{
-			for(int i=0;)
+			os << _end_from.size() << endl;
+
+			for(int i=0;i<_end_from.size();i++)
+			{
+				os << _end_from[i]<<' '<<_end_from[i]<<' ' << _need[i] << endl;
+			}
+
+			write_result(os.str().c_str(), filename.c_str() );
 		}
 
 		else
 		{
 			//print : path_info.size();
+			memset(inq,0,sizeof(inq));
+			for(int i=0;i<start.size();i++)
+			{
+				inq[ start[i] ] = 1;
+			}
+
+			os << path_info.size() << endl;
+
 			for(int i=0;i<path_info.size();i++)
 			{
-				for(int j=0;j<path_info[i].size();j++)
+				vector<int> &cur = path_info[i];
+				bool spaced = false;
+
+				for(int j=0;j<cur.size();j++)
 				{
-					//print: path_info[i][j] with space
-					//remeber to erase some 'inf' edge and super end
-					//I stop here because I need to find a way to put into a char array
-					//maybe ostringstream can work
+					if( cur.size() > 1 && cur[0] == start[0] && inq[ cur[1] ]  && j == 0 ) continue;
+					if(spaced) os<<' ';
+					os << cur[i];
+					spaced = true;
 				}
+				os << endl;
 			}
+
+			write_result(os.str().c_str(), filename.c_str() );
 		}
 	}
 
@@ -265,7 +296,7 @@ struct MCMF{
 
 
 //你要完成的功能总入口
-void deploy_server(char * topo[MAX_EDGE_NUM], int line_num,char * filename)
+void deploy_server(char * topo[MAX_EDGE_NUM], int line_num,const char * filename)
 {
 
 	// 需要输出的内容
