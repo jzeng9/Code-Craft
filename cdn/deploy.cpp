@@ -19,6 +19,9 @@ struct MCMF{
 	int d[maxn];
 	int p[maxn]; /*last edge?*/
 	int a[maxn];
+	int require;
+
+	char *filename;
 
 	
 
@@ -127,7 +130,7 @@ struct MCMF{
 	void build_graph(
 		const vector<int> &end, const vector<int> &end_from,const vector<int> &need,
 		const vector<int> &path_start, const vector<int> &path_end, const vector<int> &path_flow, const vector<int> &path_cost,
-		int number_of_node
+		int number_of_node,int tot_need
 		)
 	{
 		init(number_of_node+1);
@@ -146,7 +149,7 @@ struct MCMF{
 			AddEdge(path_start[i],path_end[i],path_flow[i],path_cost[i]);
 			AddEdge(path_end[i],path_start[i],path_flow[i],path_cost[i]);
 		}
-
+		require = tot_need;
 
 	}
 
@@ -160,7 +163,7 @@ struct MCMF{
 
 	/*-1 for no solution*/
 	int get_cost( const vector<int> &start,
-		int number_of_node,int tot_need
+		//int number_of_node,int tot_need
 		)
 	{
 		//init(number_of_node+1);//we assume that n+1 is the real end
@@ -175,11 +178,11 @@ struct MCMF{
 
 		make_start();
 		int cost;
-		int flow = MincostMaxflow(start[0],number_of_node+1,cost);
+		int flow = MincostMaxflow(start[0],n,cost);//n is the end node
 		
 		DeleteEdge(start.size()-1);
-			
-		if(flow < tot_need) return -1;
+		
+		if(flow < require) return -1;
 		return cost;		
 
 	}
@@ -189,14 +192,20 @@ struct MCMF{
 //你要完成的功能总入口
 void deploy_server(char * topo[MAX_EDGE_NUM], int line_num,char * filename)
 {
+
+	// 需要输出的内容
+	//char * topo_file;
+
 	int number_of_node,int path_num,int cost_num;
 	int read_num = 0;
+
 	int server_cost;
 	
 	sscanf( topo[read_num] ,"%d%d%d", &number_of_node,&path_num, &cost_num );
 	read_num++;
 
 	sscanf(topo[read_num], "%d", &server_cost );
+
 	read_num++;
 
 	vector<int> path_start, path_end, path_flow, path_cost;
@@ -230,10 +239,13 @@ void deploy_server(char * topo[MAX_EDGE_NUM], int line_num,char * filename)
 
 	worker.build_graph(end, end_from,need,
 		path_start, path_end, path_flow, path_cost,
-		number_of_node);
+		number_of_node,tot_need);
 
-	// 直接调用输出文件的方法输出到指定文件中(ps请注意格式的正确性，如果有解，第一行只有一个数据；第二行为空；第三行开始才是具体的数据，数据之间用一个空格分隔开)
-	write_result(topo_file, filename);
+	worker.filename = filename;
+
+
+
+	//write_result(topo_file, filename);
 
 }
 
