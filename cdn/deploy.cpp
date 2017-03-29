@@ -476,6 +476,8 @@ void deploy_server(char * topo[MAX_EDGE_NUM], int line_num,char * filename)
 		number_of_node,tot_need);
 
 	worker.filename = filename;
+	worker.server_cost = server_cost;
+	
 	srand(time(NULL)) ;
 	SA();
 }
