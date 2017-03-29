@@ -20,6 +20,8 @@ struct MCMF{
 	int p[maxn]; /*last edge?*/
 	int a[maxn];
 	int require;
+	
+	int num;
 
 	string filename;
 
@@ -121,6 +123,8 @@ struct MCMF{
 		if(flag)
 		{
 			reverse(tmp.begin(),tmp.end());
+			tmp.back() -= num;
+			
 			tmp.push_back( a[t] );
 
 			path_info.push_back(tmp);
@@ -172,6 +176,8 @@ struct MCMF{
 		_end = end;
 		_end_from = end_from;
 		_need = need;
+		
+		num = number_of_node;
 
 		init(number_of_node+end.size() + 1);
 
