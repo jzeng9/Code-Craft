@@ -173,15 +173,15 @@ struct MCMF{
 		_end_from = end_from;
 		_need = need;
 
-		init(number_of_node+1);
+		init(number_of_node+end.size() + 1);
 
 		for(int i=0;i<end.size();i++)
 		{
-			AddEdge(end[i], number_of_node , need[i], 0 );
+			AddEdge(number_of_node+ end[i], n-1 , need[i], 0 );
 		}
 		for(int i=0;i<end.size();i++)
 		{
-			AddEdge(end_from[i],end[i],need[i],0);
+			AddEdge( end_from[i], number_of_node + end[i],need[i],0);
 		}
 
 		for(int i=0;i<path_start.size();i++)
@@ -211,6 +211,12 @@ struct MCMF{
 		//int assume_end = number_of_node;
 		//build_graph();
 
+		if(start.size()==0)
+		{
+			//cout << "empty start" << endl;
+			return server_cost*_end.size();
+		}
+
 		if(!flag)
 		{
 			path_info.clear();
@@ -218,7 +224,7 @@ struct MCMF{
 
 		make_start(start);
 		int cost;
-		int flow = MincostMaxflow(start[0],n,cost,flag);//n is the end node
+		int flow = MincostMaxflow(start[0],n-1,cost,flag);//n is the end node
 		
 		if(!flag)
 		{
@@ -226,17 +232,18 @@ struct MCMF{
 			reset_flow();
 		}
 		
-		if(flow < require) return INF*maxn;
+		if(flow < require) return server_cost * _end.size();
 		return cost + server_cost * start.size() ;		
 
 	}
 
+	
 	void print_path(const vector<int> &start)
 	{
 		ostringstream os;
 
 		int cost = get_cost(start,true);
-		if(cost==INF*maxn)
+		if(cost== server_cost * _end.size() )
 		{
 			os << _end_from.size() << endl;
 
