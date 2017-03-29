@@ -10,7 +10,7 @@ struct Edge{
 struct MCMF{
 	static const int INF = 100010;
 	static const int FLOW_INF = 5010;
-	static const int maxn = 1002;
+	static const int maxn = 1502;
 
 	int n,m;
 	vector<Edge> edges;
@@ -120,15 +120,23 @@ struct MCMF{
 			}
 		}
 
+		tmp.push_back(s);
+
 		if(flag)
 		{
 			reverse(tmp.begin(),tmp.end());
+
+			
+			
+
 			tmp.back() -= num;
 			
 			tmp.push_back( a[t] );
 
 			path_info.push_back(tmp);
 		}
+		//cout << d[t] << ' ' << a[t] << endl;
+
 		return true;
 
 	}
@@ -236,7 +244,16 @@ struct MCMF{
 			reset_flow();
 		}
 		
-		if(flow < require) return server_cost * _end.size();
+		if(flow < require) 
+		{
+			//cout << "here?" << endl;
+			//cout << "flow: ? " << flow << ' ' << endl;
+			//cout << "req: " << require << endl;
+
+			return server_cost * _end.size();
+		}
+		//cout << "c: " << cost + server_cost * start.size() << endl;
+
 		return cost + server_cost * start.size() ;		
 
 	}
@@ -247,13 +264,14 @@ struct MCMF{
 		ostringstream os;
 
 		int cost = get_cost(start,true);
-		if(cost== server_cost * _end.size() )
+		if(cost >= server_cost * _end.size() )
 		{
 			os << _end_from.size() << endl;
+			os << endl;
 
 			for(int i=0;i<_end_from.size();i++)
 			{
-				os << _end_from[i]<<' '<<_end_from[i]<<' ' << _need[i] << endl;
+				os << _end_from[i]<<' '<<_end[i]<<' ' << _need[i] << endl;
 			}
 
 			write_result(os.str().c_str(), filename.c_str() );
@@ -269,6 +287,7 @@ struct MCMF{
 			}
 
 			os << path_info.size() << endl;
+			os << endl;
 
 			for(int i=0;i<path_info.size();i++)
 			{
@@ -279,7 +298,7 @@ struct MCMF{
 				{
 					if( cur.size() > 1 && cur[0] == start[0] && inq[ cur[1] ]  && j == 0 ) continue;
 					if(spaced) os<<' ';
-					os << cur[i];
+					os << cur[j];
 					spaced = true;
 				}
 				os << endl;
@@ -292,13 +311,15 @@ struct MCMF{
 }worker;
 
 
-void change(vector<int> &start,bool center[])
+void change(vector<int> &start,
+	//bool center[]
+	bitset<1000> &center )
 {
 	int tmp = rand()%3 ;
-	if((tmp == 0 || start.size() == 0)&& start.size()!=worker.n)
+	if((tmp == 0 || start.size() == 0)&& start.size()!=worker.num)
 	{
-		int pos = rand()%worker.n ;
-		while(center[pos]) pos = rand()%worker.n ;
+		int pos = rand()%worker.num ;
+		while(center[pos]) pos = rand()%worker.num;
 		center[pos] = 1 ;
 		start.push_back(pos) ;
 	}
@@ -316,18 +337,23 @@ void change(vector<int> &start,bool center[])
 		start.erase(start.begin()+pos2) ;
 		center[ele] = 0 ;
 		
-		int pos1 = rand()%worker.n ;
-		while(center[pos1]) pos1 = rand()%worker.n ;
+		int pos1 = rand()%worker.num ;
+		while(center[pos1]) pos1 = rand()%worker.num ;
 		center[pos1] = 1 ;
 		start.push_back(pos1) ;
 	}
 }
 void SA()
 {
-	bool center[worker.n+1] = {0} ;
+	//bool center[1000] = {0} ;
+	//const int num = worker.num;
+
+	//bitset<num> center;
+	bitset<1000> center;
+
 	vector<int> start ;
 	vector<int> best_start;
-	for(int i = 0 ; i < worker.n+1 ; i++)
+	for(int i = 0 ; i < worker.num ; i++)
 	{
 		center[i] = rand()%2 ;
 		if(center[i])
@@ -335,26 +361,42 @@ void SA()
 			start.push_back(i) ;
 		}
 	}
+
 	double cost = worker.get_cost(start) ;
 	double T = 500 , step = 0.1 ;
 	while(T>0)
 	{
-		bool new_center[worker.n+1] = {0} ;
-		for(int i = 0 ; i < worker.n+1 ; i++)
+		//bool new_center[1000] = {0} ;
+		bitset<1000> new_center;
+
+		/*
+		for(int i = 0 ; i < worker.num ; i++)
 		{
 			new_center[i] = center[i] ;
 		}
+		*/
+
+		new_center = center;
+
 		vector<int> new_start(start) ;
 		
 		change(new_start,new_center) ;
+
+		//print_vector( start );
+
 		int new_cost = worker.get_cost(start) ;
 		if(new_cost < cost)
 		{
 			cost = new_cost ;
-			for(int i = 0 ; i < worker.n+1 ; i++)
+			/*
+			for(int i = 0 ; i < worker.num ; i++)
 			{
 				center[i] = new_center[i] ;
 			}
+			*/
+
+			center = new_center;
+
 			start = new_start ;
 			best_start = start;
 		}
@@ -364,15 +406,21 @@ void SA()
 			if(1.0*rand()/RAND_MAX <= prob)
 			{
 				cost = new_cost ;
-				for(int i = 0 ; i < worker.n+1 ; i++)
+				/*
+				for(int i = 0 ; i < worker.num ; i++)
 				{
 					center[i] = new_center[i] ;
 				}
+				*/
+				center = new_center;
+
 				start = new_start ;
 			}
 		}
 		T = T - step ;
 	}
+	//print_vector(best_start);
+
 	worker.print_path(best_start);
 }
 
