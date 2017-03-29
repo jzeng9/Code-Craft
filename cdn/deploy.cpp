@@ -218,7 +218,7 @@ struct MCMF{
 		if(start.size()==0)
 		{
 			cout << "empty start" << endl;
-			return -1;
+			return INF*maxn;
 		}
 
 		if(!flag)
@@ -236,7 +236,7 @@ struct MCMF{
 			reset_flow();
 		}
 		
-		if(flow < require) return -1;
+		if(flow < require) return INF*maxn;
 		return cost + server_cost * start.size() ;		
 
 	}
@@ -246,7 +246,7 @@ struct MCMF{
 		ostringstream os;
 
 		int cost = get_cost(start,true);
-		if(cost==-1)
+		if(cost==INF*maxn)
 		{
 			os << _end_from.size() << endl;
 
