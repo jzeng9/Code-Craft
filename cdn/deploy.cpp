@@ -37,8 +37,6 @@ struct MCMF{
 	
 
 	/*链路信息*/
-
-
 	void init(int n){
 		this->n = n;
 		for(int i=0;i<n;i++) G[i].clear();
@@ -56,7 +54,6 @@ struct MCMF{
 		
 	}
 
-	
 	void DeleteEdge(int times)
 	{
 		while(times>0)
@@ -73,7 +70,6 @@ struct MCMF{
 		}
 	}
 	
-
 	bool BellmanFord(int s,int t,int &flow,int &cost,bool flag){//default : false
 		for(int i=0;i<n;i++) d[i] = INF;
 			memset(inq,0,sizeof(inq));
@@ -215,12 +211,6 @@ struct MCMF{
 		//int assume_end = number_of_node;
 		//build_graph();
 
-		if(start.size()==0)
-		{
-			cout << "empty start" << endl;
-			return INF*maxn;
-		}
-
 		if(!flag)
 		{
 			path_info.clear();
@@ -302,7 +292,7 @@ void change(vector<int> &start,bool center[])
 		center[pos] = 1 ;
 		start.push_back(pos) ;
 	}
-	else if(tmp == 1)
+	else if(tmp == 1 && start.size()>1)
 	{
 		int pos = rand()%(start.size()) ;
 		int ele = start[pos] ;
@@ -328,6 +318,7 @@ void SA()
 	bool center[worker.n+1] = {0} ;
 	vector<int> start ;
 	vector<int> best_start;
+	cout << "here" << endl ;
 	for(int i = 0 ; i < worker.n+1 ; i++)
 	{
 		srand(time(NULL)) ;
@@ -339,8 +330,9 @@ void SA()
 	}
 	double cost = worker.get_cost(start) ;
 	int T = 500 , step = 0.1 ;
-	while(T)
+	while(T>0)
 	{
+		cout << T << endl ;
 		bool new_center[worker.n+1] = {0} ;
 		for(int i = 0 ; i < worker.n+1 ; i++)
 		{
@@ -379,7 +371,7 @@ void SA()
 }
 
 //你要完成的功能总入口
-void deploy_server(char * topo[MAX_EDGE_NUM], int line_num,const char * filename)
+void deploy_server(char * topo[MAX_EDGE_NUM], int line_num,char * filename)
 {
 
 	// 需要输出的内容
