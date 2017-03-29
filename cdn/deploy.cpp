@@ -74,7 +74,7 @@ struct MCMF{
 	}
 	
 
-	bool BellmanFord(int s,int t,int &flow,int &cost,bool flag = false){
+	bool BellmanFord(int s,int t,int &flow,int &cost,bool flag){//default : false
 		for(int i=0;i<n;i++) d[i] = INF;
 			memset(inq,0,sizeof(inq));
 		d[s]=0;inq[s]=1;p[s]=0;a[s]=INF;
@@ -142,11 +142,11 @@ struct MCMF{
 		}
 	}
 
-	int MincostMaxflow(int s,int t,int &cost){
+	int MincostMaxflow(int s,int t,int &cost,bool flag){
 		int flow = 0;
 		cost = 0;
 
-		while(BellmanFord(s,t,flow,cost));
+		while(BellmanFord(s,t,flow,cost,flag));
 		return flow;
 
 	}
