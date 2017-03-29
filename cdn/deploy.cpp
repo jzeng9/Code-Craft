@@ -226,7 +226,7 @@ struct MCMF{
 			path_info.clear();
 		}
 
-		make_start();
+		make_start(start);
 		int cost;
 		int flow = MincostMaxflow(start[0],n,cost,flag);//n is the end node
 		
@@ -240,10 +240,6 @@ struct MCMF{
 		return cost + server_cost * start.size() ;		
 
 	}
-
-
-
-	
 
 	void print_path(const vector<int> &start)
 	{
@@ -295,6 +291,93 @@ struct MCMF{
 }worker;
 
 
+void change(vector<int> &start,bool center[])
+{
+	srand(time(NULL)) ;
+	int tmp = rand()%3 ;
+	if(tmp == 0)
+	{
+		int pos = rand()%worker.n ;
+		while(center[pos]) pos = rand()%worker.n ;
+		center[pos] = 1 ;
+		start.push_back(pos) ;
+	}
+	else if(tmp == 1)
+	{
+		int pos = rand()%(start.size()) ;
+		int ele = start[pos] ;
+		start.erase(start.begin()+pos) ;
+		center[ele] = 0 ;
+	}
+	else
+	{
+		int pos2 = rand()%(start.size()) ;
+		int ele = start[pos2] ;
+		start.erase(start.begin()+pos2) ;
+		center[ele] = 0 ;
+		
+		int pos1 = rand()%worker.n ;
+		while(center[pos1]) pos1 = rand()%worker.n ;
+		center[pos1] = 1 ;
+		start.push_back(pos1) ;
+	}
+	
+}
+void SA()
+{
+	bool center[worker.n+1] = {0} ;
+	vector<int> start ;
+	vector<int> best_start;
+	for(int i = 0 ; i < worker.n+1 ; i++)
+	{
+		srand(time(NULL)) ;
+		center[i] = rand()%2 ;
+		if(center[i])
+		{
+			start.push_back(i) ;
+		}
+	}
+	double cost = worker.get_cost(start) ;
+	int T = 500 , step = 0.1 ;
+	while(T)
+	{
+		bool new_center[worker.n+1] = {0} ;
+		for(int i = 0 ; i < worker.n+1 ; i++)
+		{
+			new_center[i] = center[i] ;
+		}
+		vector<int> new_start(start) ;
+		
+		change(new_start,new_center) ;
+		int new_cost = worker.get_cost(start) ;
+		if(new_cost < cost)
+		{
+			cost = new_cost ;
+			for(int i = 0 ; i < worker.n+1 ; i++)
+			{
+				center[i] = new_center[i] ;
+			}
+			start = new_start ;
+			best_start = start;
+		}
+		else
+		{
+			double prob = exp(abs(new_cost-cost)/T) ;
+			if(1.0*rand()/RAND_MAX <= prob)
+			{
+				cost = new_cost ;
+				for(int i = 0 ; i < worker.n+1 ; i++)
+				{
+					center[i] = new_center[i] ;
+				}
+				start = new_start ;
+			}
+		}
+		T = T - step ;
+	}
+	worker.print_path(best_start);
+}
+
 //你要完成的功能总入口
 void deploy_server(char * topo[MAX_EDGE_NUM], int line_num,const char * filename)
 {
@@ -302,9 +385,8 @@ void deploy_server(char * topo[MAX_EDGE_NUM], int line_num,const char * filename
 	// 需要输出的内容
 	//char * topo_file;
 
-	int number_of_node,int path_num,int cost_num;
+	int number_of_node, path_num, cost_num;
 	int read_num = 0;
-
 	int server_cost;
 	
 	sscanf( topo[read_num] ,"%d%d%d", &number_of_node,&path_num, &cost_num );
@@ -348,93 +430,5 @@ void deploy_server(char * topo[MAX_EDGE_NUM], int line_num,const char * filename
 		number_of_node,tot_need);
 
 	worker.filename = filename;
-
-
-
-	//write_result(topo_file, filename);
-
-}
-
-void change(vector<int> &start,bool center[])
-{
-	srand(time(NULL)) ;
-	int tmp = rand()%3 ;
-	if(tmp == 0)
-	{
-		int pos = rand()%worker.n ;
-		while(center[pos]) pos = rand()%worker.n ;
-		center[pos] = 1 ;
-		start.push_back(pos) ;
-	}
-	else if(tmp == 1)
-	{
-		int pos = rand()%(start.size()) ;
-		int ele = start[pos] ;
-		start.erase(pos) ;
-		center[ele] = 0 ;
-	}
-	else
-	{
-		int pos2 = rand()%(start.size()) ;
-		int ele = start[pos2] ;
-		start.erase(pos2) ;
-		center[ele] = 0 ;
-		
-		int pos1 = rand()%worker.n ;
-		while(center[pos1]) pos1 = rand()%worker.n ;
-		center[pos1] = 1 ;
-		start.push_back(pos1) ;
-	}
-	
-}
-void SA()
-{
-	bool center[worker.n+1] = {0} ;
-	vector<int> start ;
-	for(int i = 0 ; i < worker.n+1 ; i++)
-	{
-		srand(time(NULL)) ;
-		center[i] = rand()%2 ;
-		if(center[i])
-		{
-			start.push_back(i) ;
-		}
-	}
-	double cost = worker.get_cost(start) ;
-	int T = 500 , step = 0.1 ;
-	while(T)
-	{
-		bool new_center[worker.n+1] = {0} ;
-		for(int i = 0 ; i < worker.n+1 ; i++)
-		{
-			new_center[i] = center[i] ;
-		}
-		vector<int> new_start(start) ;
-		
-		change(new_start,new_center) ;
-		int new_cost = worker.get_cost(start) ;
-		if(new_cost < cost)
-		{
-			cost = new_cost ;
-			for(int i = 0 ; i < worker.n+1 ; i++)
-			{
-				center[i] = new_center[i] ;
-			}
-			start = new_start ;
-		}
-		else
-		{
-			double prob = exp(abs(new_cost-cost)/T) ;
-			if(1.0*rand()/RAND_MAX <= prob)
-			{
-				cost = new_cost ;
-				for(int i = 0 ; i < worker.n+1 ; i++)
-				{
-					center[i] = new_center[i] ;
-				}
-				start = new_start ;
-			}
-		}
-		T = T - step ;
-	}
+	SA();
 }
