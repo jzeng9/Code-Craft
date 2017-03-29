@@ -420,7 +420,7 @@ void deploy_server(char * topo[MAX_EDGE_NUM], int line_num,const char * filename
 
 		end.push_back(s);
 		end_from.push_back(t);
-		cost_num.push_back(c);
+		need.push_back(c);
 
 		tot_need += c;
 	}
