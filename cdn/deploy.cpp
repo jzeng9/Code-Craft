@@ -129,7 +129,6 @@ struct MCMF{
 
 			path_info.push_back(tmp);
 		}
-
 		return true;
 
 	}
@@ -219,7 +218,6 @@ struct MCMF{
 
 		if(start.size()==0)
 		{
-			//cout << "empty start" << endl;
 			return server_cost*_end.size();
 		}
 
@@ -296,9 +294,8 @@ struct MCMF{
 
 void change(vector<int> &start,bool center[])
 {
-	srand(time(NULL)) ;
 	int tmp = rand()%3 ;
-	if(tmp == 0)
+	if((tmp == 0 || start.size() == 0)&& start.size()!=worker.n)
 	{
 		int pos = rand()%worker.n ;
 		while(center[pos]) pos = rand()%worker.n ;
@@ -312,7 +309,7 @@ void change(vector<int> &start,bool center[])
 		start.erase(start.begin()+pos) ;
 		center[ele] = 0 ;
 	}
-	else
+	else if(tmp == 2)
 	{
 		int pos2 = rand()%(start.size()) ;
 		int ele = start[pos2] ;
@@ -324,17 +321,14 @@ void change(vector<int> &start,bool center[])
 		center[pos1] = 1 ;
 		start.push_back(pos1) ;
 	}
-	
 }
 void SA()
 {
 	bool center[worker.n+1] = {0} ;
 	vector<int> start ;
 	vector<int> best_start;
-	cout << "here" << endl ;
 	for(int i = 0 ; i < worker.n+1 ; i++)
 	{
-		srand(time(NULL)) ;
 		center[i] = rand()%2 ;
 		if(center[i])
 		{
@@ -342,10 +336,9 @@ void SA()
 		}
 	}
 	double cost = worker.get_cost(start) ;
-	int T = 500 , step = 0.1 ;
+	double T = 500 , step = 0.1 ;
 	while(T>0)
 	{
-		cout << T << endl ;
 		bool new_center[worker.n+1] = {0} ;
 		for(int i = 0 ; i < worker.n+1 ; i++)
 		{
@@ -435,5 +428,6 @@ void deploy_server(char * topo[MAX_EDGE_NUM], int line_num,char * filename)
 		number_of_node,tot_need);
 
 	worker.filename = filename;
+	srand(time(NULL)) ;
 	SA();
 }
