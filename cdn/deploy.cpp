@@ -1,6 +1,10 @@
 #include "deploy.h"
 #include <bits/stdc++.h>
 using namespace std;
+
+int cost_num;
+double T =500, step=0.1;
+
 struct Edge{
 	int from,to,cap,flow,cost;
 	Edge(){};
@@ -35,8 +39,6 @@ struct MCMF{
 	vector<int> tmp;
 
 	int server_cost;
-
-	
 
 	/*链路信息*/
 	void init(int n){
@@ -126,9 +128,6 @@ struct MCMF{
 		{
 			reverse(tmp.begin(),tmp.end());
 
-			
-			
-
 			tmp.back() -= num;
 			
 			tmp.push_back( a[t] );
@@ -138,7 +137,6 @@ struct MCMF{
 		//cout << d[t] << ' ' << a[t] << endl;
 
 		return true;
-
 	}
 
 	void reset_flow()
@@ -312,11 +310,10 @@ struct MCMF{
 
 
 void change(vector<int> &start,
-	//bool center[]
 	bitset<1000> &center )
 {
 	int tmp = rand()%3 ;
-	if((tmp == 0 || start.size() == 0)&& start.size()!=worker.num)
+	if((tmp == 0 && start.size() != cost_num ) || start.size()==0)
 	{
 		int pos = rand()%worker.num ;
 		while(center[pos]) pos = rand()%worker.num;
@@ -347,7 +344,6 @@ void SA()
 {
 	//bool center[1000] = {0} ;
 	//const int num = worker.num;
-
 	//bitset<num> center;
 	bitset<1000> center;
 
@@ -360,21 +356,14 @@ void SA()
 		{
 			start.push_back(i) ;
 		}
+		if(start.size()==cost_num) break;
 	}
 
 	double cost = worker.get_cost(start) ;
-	double T = 500 , step = 0.1 ;
 	while(T>0)
 	{
 		//bool new_center[1000] = {0} ;
 		bitset<1000> new_center;
-
-		/*
-		for(int i = 0 ; i < worker.num ; i++)
-		{
-			new_center[i] = center[i] ;
-		}
-		*/
 
 		new_center = center;
 
@@ -388,12 +377,6 @@ void SA()
 		if(new_cost < cost)
 		{
 			cost = new_cost ;
-			/*
-			for(int i = 0 ; i < worker.num ; i++)
-			{
-				center[i] = new_center[i] ;
-			}
-			*/
 
 			center = new_center;
 
@@ -406,12 +389,6 @@ void SA()
 			if(1.0*rand()/RAND_MAX <= prob)
 			{
 				cost = new_cost ;
-				/*
-				for(int i = 0 ; i < worker.num ; i++)
-				{
-					center[i] = new_center[i] ;
-				}
-				*/
 				center = new_center;
 
 				start = new_start ;
@@ -419,8 +396,6 @@ void SA()
 		}
 		T = T - step ;
 	}
-	//print_vector(best_start);
-
 	worker.print_path(best_start);
 }
 
@@ -431,16 +406,16 @@ void deploy_server(char * topo[MAX_EDGE_NUM], int line_num,char * filename)
 	// 需要输出的内容
 	//char * topo_file;
 
-	int number_of_node, path_num, cost_num;
+	int number_of_node, path_num;
 	int read_num = 0;
 	int server_cost;
 	
 	sscanf( topo[read_num] ,"%d%d%d", &number_of_node,&path_num, &cost_num );
-	read_num++;
+	read_num+=2;
 
 	sscanf(topo[read_num], "%d", &server_cost );
 
-	read_num++;
+	read_num+=2;
 
 	vector<int> path_start, path_end, path_flow, path_cost;
 
@@ -457,6 +432,7 @@ void deploy_server(char * topo[MAX_EDGE_NUM], int line_num,char * filename)
 
 	int tot_need = 0;
 	vector<int> end,end_from,need;
+	read_num++;
 
 	for(int i=0;i<cost_num;i++)
 	{
