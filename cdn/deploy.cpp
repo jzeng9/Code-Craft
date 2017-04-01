@@ -358,6 +358,13 @@ void SA()
 	double cost = worker.get_cost(start) ;
 	while(T>0)
 	{
+		if( 1.0*clock() / CLOCKS_PER_SEC > 87.0 )
+		{
+			worker.print_path(best_start);
+			return;
+			//exit(0);
+		}
+		
 		bitset<1000> new_center;
 
 		new_center = center;
