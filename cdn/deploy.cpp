@@ -3,7 +3,12 @@
 using namespace std;
 
 int cost_num;
-double T =100, step=0.1;
+double T =500, step=1;
+
+void print_vector(const vector<int> &v){
+	for(int i = 0 ; i < v.size() ; i ++) cout << v[i] << " ";
+	cout << endl;
+}
 
 struct Edge{
 	int from,to,cap,flow,cost;
@@ -314,6 +319,7 @@ void change(vector<int> &start,
 	int tmp = rand()%3 ;
 	if(!avoid_delete && ((tmp == 0 && start.size() != cost_num ) || start.size()==0))
 	{
+		cout << "hello 1" << endl ;
 		int pos = rand()%worker.num ;
 		while(center[pos]) pos = rand()%worker.num;
 		center[pos] = 1 ;
@@ -321,13 +327,21 @@ void change(vector<int> &start,
 	}
 	else if(tmp == 1 && start.size()>1)
 	{
+		cout << "hello 2" << endl ;
+		/*cout << "the vector before 2 is "
+		print_vector(start);*/
 		int pos = rand()%(start.size()) ;
 		int ele = start[pos] ;
 		start.erase(start.begin()+pos) ;
 		center[ele] = 0 ;
+		/*cout << "the vector after 2 is ";
+		print_vector(start);*/
 	}
 	else
 	{
+		cout << "hello 3" << endl ;
+		/*cout << "the vector before 3 is ";
+		print_vector(start);*/
 		int pos2 = rand()%(start.size()) ;
 		int ele = start[pos2] ;
 		start.erase(start.begin()+pos2) ;
@@ -335,8 +349,11 @@ void change(vector<int> &start,
 		
 		int pos1 = rand()%worker.num ;
 		while(center[pos1]) pos1 = rand()%worker.num ;
+		//cout << " the pos is " << pos1 << "the value is " << center[pos1] << endl ;
 		center[pos1] = 1 ;
 		start.push_back(pos1) ;
+		/*cout << "the vector after3 is ";
+		print_vector(start);*/
 	}
 }
 void SA()
@@ -347,22 +364,24 @@ void SA()
 	vector<int> best_start;
 	for(int i = 0 ; i < worker.num ; i++)
 	{
-		center[i] = rand()%2 ;
-		if(center[i])
+		if(rand()%10 == 0)
 		{
+			center[i] = 1;
 			start.push_back(i) ;
+		}
+		else{
+			center[i] =0;
 		}
 		if(start.size()==cost_num) break;
 	}
-
 	double cost = worker.get_cost(start) ;
+	bool  avoid_delete = false;
 	while(T>0)
 	{
 		if( 1.0*clock() / CLOCKS_PER_SEC > 87.0 )
 		{
 			worker.print_path(best_start);
 			return;
-			//exit(0);
 		}
 		
 		bitset<1000> new_center;
@@ -370,9 +389,14 @@ void SA()
 		new_center = center;
 
 		vector<int> new_start(start) ;
-		change(new_start,new_center) ;
+		change(new_start,new_center,avoid_delete);
+		/*cout << "the vector after change is ";
+		print_vector(new_start);*/
 
-		int new_cost = worker.get_cost(start) ;
+		int new_cost = worker.get_cost(new_start);
+		avoid_delete = (bool)(new_cost == worker.INF*worker.maxn);
+		/*cout << "bool var : " << avoid_delete << endl;
+		cout << "size of the start : " << new_start.size() << endl;*/
 		if(new_cost < cost)
 		{
 			cost = new_cost ;
@@ -380,14 +404,15 @@ void SA()
 			start = new_start ;
 			best_start = start;
 		}
-		else
-		{
-			double prob = exp(abs(new_cost-cost)/T) ;
+		else{
+			double prob = exp(-1.0*abs(new_cost-cost)/T) ;
+			cout << "new_cost : " << new_cost << endl; 
+			cout << " cost : " << cost << endl;
+			cout << " prob : " << prob << endl;
 			if(1.0*rand()/RAND_MAX <= prob)
 			{
 				cost = new_cost ;
 				center = new_center;
-
 				start = new_start ;
 			}
 		}
