@@ -3,7 +3,7 @@
 using namespace std;
 
 int cost_num;
-double T =500, step=0.1;
+double T =100, step=0.1;
 
 struct Edge{
 	int from,to,cap,flow,cost;
@@ -248,7 +248,7 @@ struct MCMF{
 			//cout << "flow: ? " << flow << ' ' << endl;
 			//cout << "req: " << require << endl;
 
-			return server_cost * _end.size();
+			return INF*maxn;
 		}
 		//cout << "c: " << cost + server_cost * start.size() << endl;
 
@@ -301,19 +301,18 @@ struct MCMF{
 				}
 				os << endl;
 			}
-
 			write_result(os.str().c_str(), filename.c_str() );
 		}
 	}
-
 }worker;
 
 
 void change(vector<int> &start,
-	bitset<1000> &center )
+	bitset<1000> &center,
+	bool avoid_delete = false)
 {
 	int tmp = rand()%3 ;
-	if((tmp == 0 && start.size() != cost_num ) || start.size()==0)
+	if(!avoid_delete && ((tmp == 0 && start.size() != cost_num ) || start.size()==0))
 	{
 		int pos = rand()%worker.num ;
 		while(center[pos]) pos = rand()%worker.num;
@@ -327,7 +326,7 @@ void change(vector<int> &start,
 		start.erase(start.begin()+pos) ;
 		center[ele] = 0 ;
 	}
-	else if(tmp == 2)
+	else
 	{
 		int pos2 = rand()%(start.size()) ;
 		int ele = start[pos2] ;
@@ -342,9 +341,6 @@ void change(vector<int> &start,
 }
 void SA()
 {
-	//bool center[1000] = {0} ;
-	//const int num = worker.num;
-	//bitset<num> center;
 	bitset<1000> center;
 
 	vector<int> start ;
@@ -362,24 +358,18 @@ void SA()
 	double cost = worker.get_cost(start) ;
 	while(T>0)
 	{
-		//bool new_center[1000] = {0} ;
 		bitset<1000> new_center;
 
 		new_center = center;
 
 		vector<int> new_start(start) ;
-		
 		change(new_start,new_center) ;
-
-		//print_vector( start );
 
 		int new_cost = worker.get_cost(start) ;
 		if(new_cost < cost)
 		{
 			cost = new_cost ;
-
 			center = new_center;
-
 			start = new_start ;
 			best_start = start;
 		}
