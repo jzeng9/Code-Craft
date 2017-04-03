@@ -2,8 +2,13 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+void write_result(string a,string b)
+{
+	cout<<a;
+}
+
 int cost_num;
-double T =500, step=1;
+double T =500, step=0.1;
 
 void print_vector(const vector<int> &v){
 	for(int i = 0 ; i < v.size() ; i ++) cout << v[i] << " ";
@@ -405,16 +410,30 @@ void SA()
 			best_start = start;
 		}
 		else{
-			double prob = exp(-1.0*abs(new_cost-cost)/T) ;
+			double prob = exp( -1.0*abs(new_cost-cost)/ T ) ;
+			double a_prob = 1.0* ( rand() )  /RAND_MAX ;
+			//prob = 0;
+
 			cout << "new_cost : " << new_cost << endl; 
 			cout << " cost : " << cost << endl;
 			cout << " prob : " << prob << endl;
-			if(1.0*rand()/RAND_MAX <= prob)
+			cout << "diff : " << -1.0*abs(new_cost-cost)/ T << endl ;
+			if(a_prob <= prob)
 			{
 				cost = new_cost ;
 				center = new_center;
 				start = new_start ;
 			}
+
+			/*
+			if( prob <= 0.2)
+			{
+				cost = new_cost ;
+				center = new_center;
+				start = new_start ;
+			}
+			*/
+			
 		}
 		T = T - step ;
 	}
